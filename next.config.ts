@@ -9,7 +9,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Disable optimization to keep file names predictable
+  
   experimental: {
     optimizeCss: false,
   },
