@@ -31,7 +31,7 @@ An offline language learning flashcard app built with Electron.
 
 ## 📸 Screenshots
 
-*(Add screenshots of your app here)*
+
 
 ## 🛠️ For Developers
 
