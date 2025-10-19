@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Flashcards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+        .word-display {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 40px 0;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .meaning {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-purple { background: #8b5cf6; color: white; }
+        .btn-teal { background: #20c997; color: white; }
+        
+        .language-buttons {
+            margin: 30px 0;
+        }
+        .language-btn {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            margin: 0 10px;
+        }
+        .progress {
+            margin: 20px 0;
+        }
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #28a745;
+            height: 100%;
+            transition: width 0.3s;
+        }
+        .hidden {
+            display: none;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+        .difficulty-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        .difficulty-btn {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Language Selection Screen -->
+        <div id="language-selection">
+            <h1>🌍 Language Flashcards</h1>
+            <p style="margin-bottom: 30px; color: #666; font-size: 1.2rem;">
+                Choose your learning language
+            </p>
+            <div class="language-buttons">
+                <button class="btn-primary language-btn" onclick="selectLanguage('korean')">
+                    🇰🇷 Korean
+                </button>
+                <button class="btn-success language-btn" onclick="selectLanguage('russian')">
+                    🇷🇺 Russian
+                </button>
+            </div>
+            
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-words">0</div>
+                    <div class="stat-label">Total Words</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="mastered-words">0</div>
+                    <div class="stat-label">Mastered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="accuracy">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="current-streak">0</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flashcards Screen -->
+        <div id="flashcards" class="hidden">
+            <h1>🎯 Flashcards</h1>
+            
+            <div class="word-display" id="current-word">
+                <!-- Word will appear here -->
+            </div>
+
+            <div class="meaning hidden" id="meaning">
+                <div id="english-meaning" style="font-size: 1.5rem; margin-bottom: 10px;"></div>
+                <div id="urdu-meaning" style="font-size: 1.2rem; color: #666;"></div>
+            </div>
+
+            <!-- Difficulty Rating -->
+            <div class="difficulty-buttons">
+                <button class="difficulty-btn btn-success" onclick="rateDifficulty('easy')">
+                    😊 Easy
+                </button>
+                <button class="difficulty-btn btn-warning" onclick="rateDifficulty('medium')">
+                    😐 Medium
+                </button>
+                <button class="difficulty-btn btn-danger" onclick="rateDifficulty('hard')">
+                    😰 Hard
+                </button>
+            </div>
+
+            <!-- Main Action Buttons -->
+            <div class="buttons">
+                <button class="btn-secondary" onclick="previousWord()">⬅️ Previous</button>
+                <button class="btn-primary" onclick="toggleMeaning()" id="toggle-btn">
+                    Show Meaning
+                </button>
+                <button class="btn-success" onclick="nextWord()">Next ➡️</button>
+                <button class="btn-purple" onclick="shuffleWords()">🔀 Shuffle</button>
+            </div>
+
+            <!-- Progress Tracking -->
+            <div class="progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div style="margin-top: 10px; color: #666;" id="progress-text">
+                    Word 1 of 10
+                </div>
+            </div>
+
+            <!-- Session Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="session-words">0</div>
+                    <div class="stat-label">Words Seen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="session-correct">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="session-accuracy">0%</div>
+                    <div class="stat-label">Session Acc.</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="session-streak">0</div>
+                    <div class="stat-label">Streak</div>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="buttons">
+                <button class="btn-secondary" onclick="changeLanguage()">
+                    Change Language
+                </button>
+                <button class="btn-teal" onclick="exportProgress()">
+                    💾 Export Progress
+                </button>
+                <button class="btn-warning" onclick="resetProgress()">
+                    🔄 Reset Progress
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Source Indicator -->
+    <div id="data-source" style="
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.75rem;
+    "></div>
+
+    <script>
+        // ==============================
+        // INITIALIZATION & CORE DATA
+        // ==============================
+
+        // Sample word data
+        let words = [
+            { english: "Hello", urdu: "ہیلو", russian: "Привет", korean: "안녕하세요" },
+            { english: "Goodbye", urdu: "الوداع", russian: "До свидания", korean: "안녕히 가세요" },
+            { english: "Thank you", urdu: "شکریہ", russian: "Спасибо", korean: "감사합니다" },
+            { english: "Yes", urdu: "جی ہاں", russian: "Да", korean: "네" },
+            { english: "No", urdu: "نہیں", russian: "Нет", korean: "아니요" },
+            { english: "Water", urdu: "پانی", russian: "Вода", korean: "물" },
+            { english: "Food", urdu: "کھانا", russian: "Еда", korean: "음식" },
+            { english: "House", urdu: "گھر", russian: "Дом", korean: "집" },
+            { english: "Book", urdu: "کتاب", russian: "Книга", korean: "책" },
+            { english: "Friend", urdu: "دوست", russian: "Друг", korean: "친구" }
+        ];
+
+        let currentLanguage = null;
+        let currentIndex = 0;
+        let showingMeaning = false;
+        let dataSource = "sample";
+
+        // Progress tracking object
+        let userProgress = {
+            currentIndex: 0,
+            currentLanguage: null,
+            wordStats: {},
+            session: {
+                startTime: null,
+                wordsSeen: 0,
+                correctAnswers: 0,
+                currentStreak: 0,
+                bestStreak: 0
+            },
+            overall: {
+                totalSessions: 0,
+                totalWordsSeen: 0,
+                totalCorrect: 0,
+                lastSession: null,
+                currentDayStreak: 0,
+                bestDayStreak: 0,
+                lastStudyDate: null
+            }
+        };
+
+        // ==============================
+        // CORE FLASHCARD FUNCTIONS
+        // ==============================
+
+        function selectLanguage(lang) {
+            currentLanguage = lang;
+            userProgress.currentLanguage = lang;
+            userProgress.session.startTime = new Date().toISOString();
+            userProgress.session.wordsSeen = 0;
+            userProgress.session.correctAnswers = 0;
+            userProgress.session.currentStreak = 0;
+            
+            saveState();
+            document.getElementById('language-selection').classList.add('hidden');
+            document.getElementById('flashcards').classList.remove('hidden');
+            showCurrentWord();
+            updateAllStats();
+        }
+
+        function changeLanguage() {
+            currentLanguage = null;
+            userProgress.currentLanguage = null;
+            saveState();
+            document.getElementById('flashcards').classList.add('hidden');
+            document.getElementById('language-selection').classList.remove('hidden');
+            updateAllStats();
+        }
+
+        function showCurrentWord() {
+            const word = words[currentIndex];
+            const wordElement = document.getElementById('current-word');
+            const meaningElement = document.getElementById('meaning');
+            
+            wordElement.textContent = currentLanguage === 'korean' ? word.korean : word.russian;
+            meaningElement.classList.add('hidden');
+            showingMeaning = false;
+            document.getElementById('toggle-btn').textContent = 'Show Meaning';
+            
+            updateProgress();
+        }
+
+        function toggleMeaning() {
+            const meaningElement = document.getElementById('meaning');
+            const word = words[currentIndex];
+            
+            if (showingMeaning) {
+                meaningElement.classList.add('hidden');
+                document.getElementById('toggle-btn').textContent = 'Show Meaning';
+            } else {
+                document.getElementById('english-meaning').textContent = word.english;
+                document.getElementById('urdu-meaning').textContent = word.urdu;
+                meaningElement.classList.remove('hidden');
+                document.getElementById('toggle-btn').textContent = 'Hide Meaning';
+            }
+            
+            showingMeaning = !showingMeaning;
+        }
+
+        function nextWord() {
+            currentIndex = (currentIndex + 1) % words.length;
+            userProgress.currentIndex = currentIndex;
+            saveState();
+            showCurrentWord();
+        }
+
+        function previousWord() {
+            currentIndex = (currentIndex - 1 + words.length) % words.length;
+            userProgress.currentIndex = currentIndex;
+            saveState();
+            showCurrentWord();
+        }
+
+        function shuffleWords() {
+            // Fisher-Yates shuffle
+            for (let i = words.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [words[i], words[j]] = [words[j], words[i]];
+            }
+            currentIndex = 0;
+            showingMeaning = false;
+            showCurrentWord();
+            showNotification('Words shuffled!');
+        }
+
+        // ==============================
+        // PROGRESS TRACKING & SPACED REPETITION
+        // ==============================
+
+        function rateDifficulty(difficulty) {
+            const currentWord = words[currentIndex];
+            const wordKey = `${currentWord.english}-${currentLanguage}`;
+            
+            if (!userProgress.wordStats[wordKey]) {
+                userProgress.wordStats[wordKey] = {
+                    seen: 0,
+                    correct: 0,
+                    lastSeen: null,
+                    nextReview: null,
+                    difficulty: 3, // Start with medium
+                    history: []
+                };
+            }
+            
+            const stats = userProgress.wordStats[wordKey];
+            stats.seen++;
+            
+            // Determine if correct based on difficulty
+            const isCorrect = difficulty === 'easy';
+            if (isCorrect) {
+                stats.correct++;
+                userProgress.session.correctAnswers++;
+                userProgress.session.currentStreak++;
+                userProgress.session.bestStreak = Math.max(userProgress.session.bestStreak, userProgress.session.currentStreak);
+            } else {
+                userProgress.session.currentStreak = 0;
+            }
+            
+            stats.lastSeen = new Date().toISOString();
+            stats.history.push({
+                timestamp: new Date().toISOString(),
+                difficulty: difficulty,
+                correct: isCorrect
+            });
+            
+            // Update difficulty using spaced repetition
+            updateWordDifficulty(stats, difficulty);
+            stats.nextReview = calculateNextReview(stats);
+            
+            userProgress.session.wordsSeen++;
+            userProgress.overall.totalWordsSeen++;
+            if (isCorrect) userProgress.overall.totalCorrect++;
+            
+            saveState();
+            updateAllStats();
+            nextWord();
+        }
+
+        function updateWordDifficulty(stats, ratedDifficulty) {
+            const difficultyMap = { easy: 1, medium: 3, hard: 5 };
+            const ratedLevel = difficultyMap[ratedDifficulty];
+            
+            // Adjust difficulty based on rating
+            if (ratedLevel === 1) {
+                // Easy - make easier
+                stats.difficulty = Math.max(1, stats.difficulty - 0.5);
+            } else if (ratedLevel === 5) {
+                // Hard - make harder
+                stats.difficulty = Math.min(5, stats.difficulty + 0.5);
+            }
+            // Medium doesn't change difficulty much
+        }
+
+        function calculateNextReview(stats) {
+            const intervals = [1, 2, 4, 7, 14, 30]; // Days based on difficulty
+            const intervalIndex = Math.min(Math.floor(stats.difficulty) - 1, intervals.length - 1);
+            const interval = intervals[intervalIndex];
+            const nextDate = new Date();
+            nextDate.setDate(nextDate.getDate() + interval);
+            return nextDate.toISOString();
+        }
+
+        // ==============================
+        // STATS & PROGRESS DISPLAY
+        // ==============================
+
+        function updateProgress() {
+            const progress = ((currentIndex + 1) / words.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = 
+                `Word ${currentIndex + 1} of ${words.length} (${progress.toFixed(1)}%)`;
+        }
+
+        function updateAllStats() {
+            // Overall stats
+            const totalWords = words.length;
+            const masteredWords = Object.values(userProgress.wordStats).filter(
+                stat => stat.difficulty <= 2
+            ).length;
+            const overallAccuracy = userProgress.overall.totalWordsSeen > 0 
+                ? Math.round((userProgress.overall.totalCorrect / userProgress.overall.totalWordsSeen) * 100)
+                : 0;
+            
+            // Session stats
+            const sessionAccuracy = userProgress.session.wordsSeen > 0 
+                ? Math.round((userProgress.session.correctAnswers / userProgress.session.wordsSeen) * 100)
+                : 0;
+            
+            // Update DOM elements
+            document.getElementById('total-words').textContent = totalWords;
+            document.getElementById('mastered-words').textContent = masteredWords;
+            document.getElementById('accuracy').textContent = overallAccuracy + '%';
+            document.getElementById('current-streak').textContent = userProgress.overall.currentDayStreak;
+            
+            document.getElementById('session-words').textContent = userProgress.session.wordsSeen;
+            document.getElementById('session-correct').textContent = userProgress.session.correctAnswers;
+            document.getElementById('session-accuracy').textContent = sessionAccuracy + '%';
+            document.getElementById('session-streak').textContent = userProgress.session.currentStreak;
+            
+            // Data source
+            document.getElementById('data-source').textContent = `Using ${dataSource} data | ${masteredWords}/${totalWords} mastered`;
+        }
+
+        // ==============================
+        // PERSISTENCE & IMPORT/EXPORT
+        // ==============================
+
+        function saveState() {
+            userProgress.currentIndex = currentIndex;
+            userProgress.currentLanguage = currentLanguage;
+            
+            // Update day streak
+            const today = new Date().toDateString();
+            if (userProgress.overall.lastStudyDate !== today) {
+                if (userProgress.overall.lastStudyDate) {
+                    const lastDate = new Date(userProgress.overall.lastStudyDate);
+                    const todayObj = new Date(today);
+                    const diffTime = Math.abs(todayObj - lastDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays === 1) {
+                        userProgress.overall.currentDayStreak++;
+                    } else if (diffDays > 1) {
+                        userProgress.overall.currentDayStreak = 1;
+                    }
+                } else {
+                    userProgress.overall.currentDayStreak = 1;
+                }
+                userProgress.overall.lastStudyDate = today;
+            }
+            
+            userProgress.overall.bestDayStreak = Math.max(
+                userProgress.overall.bestDayStreak, 
+                userProgress.overall.currentDayStreak
+            );
+            
+            localStorage.setItem('flashcardProgress', JSON.stringify(userProgress));
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('flashcardProgress');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    userProgress = { ...userProgress, ...parsed };
+                    currentIndex = userProgress.currentIndex || 0;
+                    currentLanguage = userProgress.currentLanguage || null;
+                    
+                    if (currentLanguage) {
+                        document.getElementById('language-selection').classList.add('hidden');
+                        document.getElementById('flashcards').classList.remove('hidden');
+                        showCurrentWord();
+                    }
+                    
+                    updateAllStats();
+                } catch (error) {
+                    console.log('Error loading progress:', error);
+                }
+            }
+        }
+
+        function exportProgress() {
+            const dataStr = JSON.stringify(userProgress, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `flashcard-progress-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showNotification('Progress exported!');
+        }
+
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+                userProgress = {
+                    currentIndex: 0,
+                    currentLanguage: null,
+                    wordStats: {},
+                    session: {
+                        startTime: null,
+                        wordsSeen: 0,
+                        correctAnswers: 0,
+                        currentStreak: 0,
+                        bestStreak: 0
+                    },
+                    overall: {
+                        totalSessions: 0,
+                        totalWordsSeen: 0,
+                        totalCorrect: 0,
+                        lastSession: null,
+                        currentDayStreak: userProgress.overall.currentDayStreak, // Keep day streak
+                        bestDayStreak: userProgress.overall.bestDayStreak,
+                        lastStudyDate: userProgress.overall.lastStudyDate
+                    }
+                };
+                
+                currentIndex = 0;
+                currentLanguage = null;
+                saveState();
+                
+                document.getElementById('flashcards').classList.add('hidden');
+                document.getElementById('language-selection').classList.remove('hidden');
+                updateAllStats();
+                
+                showNotification('Progress reset!');
+            }
+        }
+
+        // ==============================
+        // CSV LOADING & UTILITIES
+        // ==============================
+
+        function loadCSVWords() {
+            console.log("Attempting to load CSV file...");
+            
+            const pathsToTry = ['./words.csv', 'words.csv', '/words.csv', '../words.csv'];
+            
+            let loadedFromCSV = false;
+            
+            function tryNextPath(index) {
+                if (index >= pathsToTry.length) {
+                    console.log("All CSV paths failed, using sample words");
+                    if (!loadedFromCSV) {
+                        dataSource = "sample";
+                        updateAllStats();
+                    }
+                    return;
+                }
+                
+                const path = pathsToTry[index];
+                console.log(`Trying CSV path: ${path}`);
+                
+                fetch(path)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(csvText => {
+                        console.log("CSV content received:", csvText.substring(0, 200) + "...");
+                        
+                        if (csvText && csvText.trim()) {
+                            const rows = csvText.trim().split('\n');
+                            console.log(`Found ${rows.length} rows in CSV`);
+                            
+                            if (rows.length > 1) {
+                                const parsedWords = [];
+                                
+                                for (let i = 1; i < rows.length; i++) {
+                                    const row = rows[i].trim();
+                                    if (row) {
+                                        const delimiter = row.includes(';') ? ';' : ',';
+                                        const columns = row.split(delimiter);
+                                        
+                                        if (columns.length >= 4) {
+                                            const word = {
+                                                english: columns[0]?.trim() || '',
+                                                urdu: columns[1]?.trim() || '',
+                                                russian: columns[2]?.trim() || '',
+                                                korean: columns[3]?.trim() || ''
+                                            };
+                                            
+                                            if (word.english && word.english !== 'english') {
+                                                parsedWords.push(word);
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                if (parsedWords.length > 0) {
+                                    console.log(`Successfully parsed ${parsedWords.length} words from CSV`);
+                                    
+                                    words = parsedWords;
+                                    currentIndex = 0;
+                                    dataSource = "CSV";
+                                    loadedFromCSV = true;
+                                    
+                                    if (currentLanguage) {
+                                        showCurrentWord();
+                                    }
+                                    updateAllStats();
+                                    
+                                    console.log(`Now using ${words.length} words from CSV`);
+                                    return;
+                                }
+                            }
+                        }
+                        
+                        throw new Error("No valid words found in CSV");
+                    })
+                    .catch(error => {
+                        console.log(`Failed to load from ${path}:`, error.message);
+                        tryNextPath(index + 1);
+                    });
+            }
+            
+            tryNextPath(0);
+        }
+
+        function showNotification(message) {
+            // Remove existing notification
+            const existing = document.querySelector('.notification');
+            if (existing) {
+                existing.remove();
+            }
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // ==============================
+        // INITIALIZATION
+        // ==============================
+
+        function initApp() {
+            loadState();
+            loadCSVWords();
+            updateAllStats();
+        }
+
+        // Start the app when page loads
+        document.addEventListener('DOMContentLoaded', initApp);
+
+        // Auto-save when leaving the page
+        window.addEventListener('beforeunload', saveState);
+    </script>
+</body>
+</html>

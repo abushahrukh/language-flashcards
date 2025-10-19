@@ -1,0 +1,31 @@
+{
+  "name": "language-flashcards",
+  "version": "1.0.0",
+  "description": "Offline language learning flashcard app",
+  "main": "electron/main.js",
+  
+    "scripts": {
+      "electron:dev": "electron electron/main.js",
+      "pack": "electron-packager . \"Language Flashcards\" --platform=win32 --arch=x64 --out=dist --overwrite --icon=assets/icon.ico",
+      "pack:portable": "electron-packager . \"Language Flashcards\" --platform=win32 --arch=x64 --out=dist --overwrite --asar --prune=true"
+    },
+  
+  "devDependencies": {
+    "electron": "^28.3.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.language.flashcards",
+    "productName": "Language Flashcards",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "public/**/*",
+      "electron/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    }
+  }
+}
