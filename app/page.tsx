@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 
 export default function Home() {
   useEffect(() => {
-    // Use relative path for static export
+    
     if (typeof window !== 'undefined' && window.location.pathname === '/') {
       window.location.href = './Flashcards/';
     }
