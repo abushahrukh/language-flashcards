@@ -10,19 +10,19 @@ function createWindow() {
       contextIsolation: true,
       webSecurity: false
     },
-    icon: path.join(__dirname, '../assets/icon.ico'), // Optional
-    show: false // Don't show until ready
+    icon: path.join(__dirname, '../assets/icon.ico'), 
+    show: false 
   });
 
-  // Load our manual HTML file directly
+  
   win.loadFile(path.join(__dirname, '../public/manual-flashcards.html'));
 
-  // Show window when ready to prevent visual flash
+ 
   win.once('ready-to-show', () => {
     win.show();
   });
 
-  // Create application menu
+  
   const template = [
     {
       label: 'File',
