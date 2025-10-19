@@ -3,25 +3,25 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-console.log('🚀 Building Language Flashcards...');
+console.log(' Building Language Flashcards...');
 
-// Create dist structure
+
 const distDir = path.join(__dirname, 'dist');
 const appDir = path.join(distDir, 'Language Flashcards');
 
-// Clean previous build
+
 if (fs.existsSync(distDir)) {
     fs.rmSync(distDir, { recursive: true });
 }
 
-// Create directories
+
 fs.mkdirSync(appDir, { recursive: true });
 fs.mkdirSync(path.join(appDir, 'public'), { recursive: true });
 
-// Copy files
-console.log('📁 Copying application files...');
 
-// Copy HTML and CSV
+console.log(' Copying application files...');
+
+
 fs.copyFileSync(
     path.join(__dirname, 'public', 'manual-flashcards.html'),
     path.join(appDir, 'public', 'manual-flashcards.html')
@@ -34,7 +34,7 @@ if (fs.existsSync(path.join(__dirname, 'public', 'words.csv'))) {
     );
 }
 
-// Create package.json for the app
+
 const appPackage = {
     name: "language-flashcards",
     version: "1.0.0",
@@ -47,7 +47,7 @@ fs.writeFileSync(
     JSON.stringify(appPackage, null, 2)
 );
 
-// Create main.js for the packaged app
+
 const mainJsContent = `const { app, BrowserWindow, Menu, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
