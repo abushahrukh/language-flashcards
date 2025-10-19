@@ -30,6 +30,9 @@ An offline language learning flashcard app built with Electron.
 - 100MB free disk space
 
 ## 📸 Screenshots
+<img width="1920" height="1032" alt="3" src="https://github.com/user-attachments/assets/9b668aff-24fd-428d-96d6-dda4eba870f4" />
+<img width="1920" height="1032" alt="2" src="https://github.com/user-attachments/assets/9a33438d-404c-4f9e-b18c-b651476af987" />
+<img width="1239" height="870" alt="1" src="https://github.com/user-attachments/assets/1b8c2b2e-bb5b-4a00-a6e1-f540351507f0" />
 
 
 
